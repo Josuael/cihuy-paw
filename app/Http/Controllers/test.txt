@@ -1,0 +1,46 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Loan;
+use App\Models\InstallmentSchedule;
+use App\Models\Payment;
+use Illuminate\Support\Facades\Auth;
+
+class LoanDetailController extends Controller
+{
+    public function show($loan_id)
+    {
+        $loan = Loan::with('member')->where('loan_id', $loan_id)->firstOrFail();
+
+        // Kalau yang akses member, pastikan loan ini miliknya sendiri
+        if (Auth::user()->role === 'member') {
+            $member = Auth::user()->member;
+
+            if (!$member || $loan->member_id !== $member->member_id) {
+                abort(403, 'Unauthorized');
+            }
+
+            $wallet = $member->wallet ?? null;
+        } else {
+            $wallet = null;
+        }
+
+        // Jadwal angsuran
+        $schedules = InstallmentSchedule::where('loan_id', $loan->loan_id)
+            ->orderBy('installment_number')
+            ->get();
+
+        // Pembayaran yang sudah dilakukan
+        $payments = Payment::where('loan_id', $loan->loan_id)
+            ->orderBy('payment_date')
+            ->get();
+
+        return view('loans.show-loan', [
+            'loan'      => $loan,
+            'schedules' => $schedules,
+            'payments'  => $payments,
+            'wallet'    => $wallet,
+        ]);
+    }
+}
