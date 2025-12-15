@@ -12,17 +12,11 @@ use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 
 class BuktiPeminjamanController extends Controller
 {
-    public function generate($loan_id)
+    public function generate(Loan $loan)
     {
+        $loan->load('member');
         // Ambil loan + member + jadwal + pembayaran
-        $loan = Loan::with([
-                'member',
-                'schedules' => function ($q) {
-                    $q->orderBy('installment_number');
-                },
-                'payments'
-            ])
-            ->findOrFail($loan_id);
+        $loan -> member;
 
         $schedules = $loan->schedules;
         $payments  = $loan->payments;

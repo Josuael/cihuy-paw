@@ -4,33 +4,24 @@ namespace App\Policies;
 
 use App\Models\Loan;
 use App\Models\User;
-use Illuminate\Http\Response;
 
 class LoanPolicy
 {
-    // siapa saja boleh melihat loan ini?
-    public function view(User $user, Loan $loan)
+    /**
+     * Siapa saja yang boleh melihat BP untuk suatu loan.
+     */
+    public function view(User $user, Loan $loan): bool
     {
-        // 1. Member pemilik loan → boleh
-        if ($user->role === 'member' && $user->user_id === $loan->member->user_id) {
+        if (in_array($user->role, ['admin', 'staff', 'ketua'])) {
             return true;
         }
 
-        // 2. Staff → boleh akses untuk verifikasi & angsuran
-        if ($user->role === 'staff') {
-            return true;
+        if ($user->role === 'member') {
+            $member = $loan->member; 
+            return $member && $member->user_id === $user->user_id;
         }
 
-        // 3. Admin → boleh
-        if ($user->role === 'admin') {
-            return true;
-        }
-
-        // 4. Ketua → boleh
-        if ($user->role === 'ketua') {
-            return true;
-        }
-
+        // role lain (kalau ada) ditolak
         return false;
     }
 }

@@ -33,7 +33,7 @@ class Loan extends Model
 
     public function member()
     {
-        return $this->belongsTo(\App\Models\Member::class, 'member_id', 'member_id');
+        return $this->belongsTo(Member::class, 'member_id', 'member_id');
     }
 
 }
