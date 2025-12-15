@@ -50,4 +50,9 @@ class LoanApplication extends Model
     {
         return $this->hasMany(SupportingDocument::class, 'application_id', 'application_id');
     }
+
+    public function supportingDocuments()
+    {
+        return $this->hasMany(SupportingDocument::class, 'application_id', 'application_id');
+    }
 }

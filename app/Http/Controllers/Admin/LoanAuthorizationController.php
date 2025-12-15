@@ -13,7 +13,11 @@ class LoanAuthorizationController extends Controller
 {
     public function index()
     {
-        $apps = LoanApplication::where('status', 'Verified')->get();
+        $apps = LoanApplication::with(['member', 'supportingDocuments'])
+            ->where('status', 'Verified')
+            ->orderByDesc('verified_at')
+            ->get();
+            
         return view('admin.authorization.index', compact('apps'));
     }
 

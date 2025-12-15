@@ -8,6 +8,10 @@ class InstallmentSchedule extends Model
 {
     protected $primaryKey = 'schedule_id';
 
+    protected $casts = [
+        'due_date' => 'date', 
+    ];
+
     protected $fillable = [
         'loan_id','installment_number','due_date',
         'principal_amount','interest_amount',

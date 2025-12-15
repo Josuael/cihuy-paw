@@ -13,7 +13,6 @@
 </div>
 
 <div class="row">
-    {{-- RINGKASAN PINJAMAN --}}
     <div class="col-md-4 mb-4">
         <div class="card-dark p-4">
             <h5 class="text-white mb-3">Ringkasan Pinjaman</h5>
@@ -40,15 +39,15 @@
 
             <hr>
 
-            <a href="{{ url('/pdf/bp/'.$loan->loan_id) }}"
-               class="btn btn-purple w-100" target="_blank">
-                <i class="fa-solid fa-file-pdf me-2"></i>
-                Download Bukti Peminjaman (BP)
+            <a href="{{ route('pdf.bp', $loan->loan_id) }}"
+                class="btn btn-purple w-100"
+                target="_blank">
+                    <i class="fa-solid fa-file-pdf me-2"></i>
+                    Download Bukti Peminjaman (BP)
             </a>
         </div>
     </div>
 
-    {{-- JADWAL ANGSURAN + PEMBAYARAN --}}
     <div class="col-md-8 mb-4">
 
         {{-- JADWAL --}}
@@ -120,7 +119,6 @@
             </div>
 
 
-        {{-- PEMBAYARAN --}}
         <div class="card-dark p-4">
             <h5 class="text-white mb-3">
                 <i class="fa-solid fa-clock-rotate-left me-2"></i>
@@ -155,8 +153,58 @@
                 </tbody>
 
             </table>
-        </div>
 
+            <h4 class="text-white mt-4 mb-3">
+                <i class="fa-solid fa-rotate-left me-2"></i> Riwayat Pembayaran
+            </h4>
+
+            <table class="table table-dark table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Jatuh Tempo</th>
+                        <th>No. Bukti</th>
+                        <th>Jumlah Dibayar</th>
+                        <th>Metode</th>
+                        <th>Status</th>
+                        <th>Bukti</th> {{-- kolom baru --}}
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($payments as $idx => $pay)
+                        <tr>
+                            <td>{{ $idx + 1 }}</td>
+                            <td>
+                                {{ $pay->schedule && $pay->schedule->due_date
+                                    ? $pay->schedule->due_date->format('d M Y')
+                                    : '-' }}
+                            </td>
+                            <td>{{ $pay->payment_number }}</td>
+                            <td>Rp {{ number_format($pay->amount_paid,0,',','.') }}</td>
+                            <td>{{ $pay->method ?? 'Saldo Koperasi' }}</td>
+                            <td>
+                                <span class="badge bg-success">Lunas</span>
+                            </td>
+                            <td>
+                                <a href="{{ route('pdf.ba', $pay->payment_id) }}"
+                                class="btn btn-sm btn-purple"
+                                target="_blank">
+                                    Download Bukti Angsuran (BA)
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">
+                                Belum ada pembayaran angsuran.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+        </div>
+        
     </div>
 </div>
 

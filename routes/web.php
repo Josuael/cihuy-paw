@@ -57,6 +57,9 @@ Route::middleware(['auth'])->group(function () {
         // Loan Applications
         Route::resource('/loan-applications', LoanApplicationController::class);
 
+        Route::get('/loan-applications/{application}/documents', [DocumentController::class, 'create'])
+        ->name('loan-applications.documents');
+
         // Upload supporting documents
         Route::post('/loan-applications/{id}/upload', [DocumentController::class, 'store'])
             ->name('loan-applications.upload');
@@ -95,8 +98,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/staff/schedule/generate/{loan_id}', [ScheduleController::class, 'generate'])
             ->name('schedule.generate');
 
-        // Record borrower payment
-        // Record borrower payment (cash by staff)
         Route::post('/staff/pay/{schedule_id}', [PaymentController::class, 'staffPay'])
             ->name('staff.pay');
 
@@ -157,10 +158,12 @@ Route::middleware(['auth'])->group(function () {
     // Loan PDF (BP)
     Route::get('/pdf/bp/{loan}', 
         [BuktiPeminjamanController::class, 'generate'])
+        ->name('pdf.bp')
         ->middleware('can:view,loan');
 
     // Payment PDF (BA)
     Route::get('/pdf/ba/{payment}', 
         [BuktiAngsuranController::class, 'generate'])
+        ->name('pdf.ba')
         ->middleware('can:view,payment');
 }); // END auth group

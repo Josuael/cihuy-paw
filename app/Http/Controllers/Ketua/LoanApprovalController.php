@@ -16,7 +16,11 @@ class LoanApprovalController extends Controller
 {
     public function index()
     {
-        $apps = LoanApplication::where('status', 'Authorized')->get();
+        $apps = LoanApplication::with(['member', 'supportingDocuments'])
+            ->where('status', 'Authorized')
+            ->orderByDesc('created_at')
+            ->get();
+        
         return view('ketua.approval.index', compact('apps'));
     }
 

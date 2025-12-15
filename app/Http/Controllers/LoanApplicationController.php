@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Services\LoanNumberService;
 use Illuminate\Support\Facades\Auth;
 use App\Services\AuditLogService;
+use App\Models\SupportingDocument;
+use Illuminate\Support\Facades\Storage;
+
 
 
 class LoanApplicationController extends Controller
@@ -33,7 +36,12 @@ class LoanApplicationController extends Controller
         $req->validate([
             'amount'  => 'required|numeric|min:10000',
             'purpose' => 'required',
-            'months'  => 'required|numeric|min:1'
+            'months'  => 'required|numeric|min:1',
+
+            // dokumen
+            'ktp'       => 'required|file|mimes:jpg,jpeg,png,pdf,webp|max:5120',
+            'kk'        => 'nullable|file|mimes:jpg,jpeg,png,pdf,webp|max:5120',
+            'slip_gaji' => 'nullable|file|mimes:jpg,jpeg,png,pdf,webp|max:5120',
         ]);
 
         $member = Auth::user()->member;
@@ -46,6 +54,40 @@ class LoanApplicationController extends Controller
             'duration_months'    => $req->months,
             'status'             => 'Submitted',
         ]);
+
+        $mapping = [
+            'ktp'       => 'KTP',
+            'kk'        => 'KK',
+            'slip_gaji' => 'Slip Gaji',
+        ];
+
+        foreach ($mapping as $field => $docType) {
+            if ($req->hasFile($field)) {
+                $file = $req->file($field);
+
+                // nama file unik
+                $name = time() . '_' . $field . '_' . $file->getClientOriginalName();
+
+                // simpan di storage/app/public/documents/FPP-xxxx/
+                $path = $file->storeAs(
+                    'documents/' . $app->application_number,
+                    $name,
+                    'public'
+                );
+
+                SupportingDocument::updateOrCreate(
+                    [
+                        'application_id' => $app->application_id,
+                        'doc_type'       => $docType,
+                    ],
+                    [
+                        'file_name' => $name,
+                        'file_path' => $path,
+                        'file_size' => $file->getSize(),
+                    ]
+                );
+            }
+        }
 
         AuditLogService::log(
             'Create',

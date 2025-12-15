@@ -78,6 +78,35 @@
 
                             <hr>
 
+                            <h6 class="text-white mb-3">
+                                <i class="fa-solid fa-paperclip me-2"></i>
+                                Dokumen Pendukung
+                            </h6>
+
+                            @if ($app->supportingDocuments->isEmpty())
+                                <p class="text-danger">Pengajuan ini belum memiliki dokumen pendukung.</p>
+                            @else
+                                <ul class="list-group list-group-flush">
+                                    @foreach ($app->supportingDocuments as $doc)
+                                        <li class="list-group-item bg-transparent text-light d-flex justify-content-between align-items-center border-secondary">
+                                            <div>
+                                                <strong>{{ $doc->doc_type }}</strong><br>
+                                                <small class="text-muted">
+                                                    {{ $doc->file_name }} 
+                                                    ({{ number_format($doc->file_size / 1024, 0) }} KB)
+                                                </small>
+                                            </div>
+                                            <a href="{{ asset('storage/'.$doc->file_path) }}" 
+                                            target="_blank" 
+                                            class="btn btn-sm btn-outline-info">
+                                                <i class="fa-solid fa-download me-1"></i> Lihat
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+
+
                             <p class="text-success">
                                 <i class="fa-solid fa-check-circle me-2"></i>
                                 Menyetujui pengajuan ini akan menghasilkan nomor pinjaman baru,

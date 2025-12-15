@@ -13,7 +13,11 @@ class LoanVerificationController extends Controller
 {
     public function index()
     {
-        $apps = LoanApplication::where('status', 'Submitted')->get();
+        $apps = LoanApplication::with(['member', 'supportingDocuments'])
+            ->where('status', 'Submitted')
+            ->orderByDesc('created_at')
+            ->get();
+            
         return view('staff.verification.index', compact('apps'));
     }
 
